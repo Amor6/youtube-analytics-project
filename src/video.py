@@ -1,14 +1,20 @@
+from helper.youtube_api_manual import video_id, video_response, youtube, playlist_videos
+import build
+from googleapiclient.discovery import build
+
+
 class Video:
-    def __init__(self, video_id):
-        self.video = self.service().video.list(id=video_id, part='snippet, statistics').execute()
-        self.video_id = video_id
-        self.title_video = self.video["items"][0]['snippet']['title']
-        self.url_video = 'youtube.com/watch?v=' + self.video['items'][0]['id']
-        self.vive_count = self.video['items'][0]['statistics']['viewCount']
-        self.like_count = self.video['items'][0]['statistics']['likeCount']
+
+    def __init__(self, video_response, video_title, view_count, like_count):
+        self.video_response = youtube().videos().list(part='snippet,statistics,contentDetails,topicDetails',
+                                                      id=video_id
+                                                      ).execute()
+        self.video_title = video_response['items'][0]['snippet']['title']
+        self.view_count: int = video_response['items'][0]['statistics']['viewCount']
+        self.like_count: int = video_response['items'][0]['statistics']['likeCount']
 
 
-class PLVideo:
-    def __init__(self, video_id, title_video, url_video, vive_count, like_count, id_play_list):
-        super().__init__(video_id, title_video, url_video, vive_count, like_count)
-        self.id_play_list = id_play_list
+class PLVideo(Video):
+    def __init__(self, video_ids):
+        super().__init__(video_response)
+        self.video_ids = [video['contentDetails']['videoId'] for video in playlist_videos['items']]

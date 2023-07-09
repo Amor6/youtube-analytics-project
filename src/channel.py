@@ -30,12 +30,13 @@ class Channel:
         service = build('youtube', 'v3', developerKey='API_KEY')
         return service
 
-    def print_info(self, channel_id):
-        r = self.get_service().channels().list(id=channel_id, part='snippet,statistics').execute()
-
-        #print(r['items'][0]['snippet']['title'])
-        #print(r['items'][0]['snippet']['publishedAt'])
-        #print(r['items'][0]['statistics']['viewCount'])
+    # def print_info(self, channel_id):
+    #     r = self.get_service().channels().list(id=channel_id, part='snippet,statistics').execute()
+    #
+    #     #print(r['items'][0]['snippet']['title'])
+    #     #print(r['items'][0]['snippet']['publishedAt'])
+    #     #print(r['items'][0]['statistics']['viewCount'])
+    #     return r
 
 
      '''  Метод возвращающий название и ссылку на канал по шаблону <название_канала> (<ссылка_на_канал>) '''
