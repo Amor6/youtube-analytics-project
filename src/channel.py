@@ -1,88 +1,72 @@
-import build
-from googleapiclient.discovery import build
 import json
+import os
+
+from googleapiclient.discovery import build
 
 
 class Channel:
-    """Класс для ютуб-канала"""
+    def get_service(cls):
+        api_key: str = os.getenv('YT_API_KEY')
+        return build('youtube', 'v3', developerKey=api_key)
 
     def __init__(self, channel_id: str) -> None:
-        """Экземпляр инициализируется id канала. Дальше все данные будут подтягиваться по API."""
-        # self.service = build('youtube', 'v3', developerKey='API_KEY')
-        self.channel = self.service().channels().list(id=channel_id, part='snippet, statistics').execute()
-        self.channel_id = channel_id
-        # self.api_key = os.getenv('API_KEY')
-        self.title = self.channel["items"][0]['snippet']['title']
-        # self.description = self.channel['items'][0]['snippet']['description']
-        self.url = 'http://www.youtube.com/channel/' + self.channel['items'][0]['id']
-        # self.subscribers_count = self.channel['items'][0]['statistics']['subscribersCount']
-        # self.video_count = self.channel['items'][0]['statistics']['videoCount']
-        # self.view_count = self.channel['items'][0]['statistics']['viewCount']
+        self.__channel_id = channel_id
+        youtube = self.get_service()
+        self.channel = youtube.channels().list(id=channel_id, part='snippet,statistics').execute()
+        self.title = self.channel["items"][0]["snippet"]["title"]
+        self.description = self.channel["items"][0]["snippet"]["description"]
+        self.url = "https://www.youtube.com/channel/" + channel_id
+        self.subscriberCount = int(self.channel["items"][0]["statistics"]["subscriberCount"])
+        self.video_count = int(self.channel["items"][0]["statistics"]["videoCount"])
+        self.viewCount = int(self.channel["items"][0]["statistics"]["viewCount"])
 
-        # def print_info(self):
-        """Выводит в консоль информацию о канале."""
-        # print(f'{self.channel_id}, {self.channel}, {self.title}, {self.url}, {self.video_count}')
-
-    def server(self):
-        pass
-
-    def get_service(self):
-        service = build('youtube', 'v3', developerKey='API_KEY')
-        return service
-
-    # def print_info(self, channel_id):
-    #     r = self.get_service().channels().list(id=channel_id, part='snippet,statistics').execute()
-    #
-    #     #print(r['items'][0]['snippet']['title'])
-    #     #print(r['items'][0]['snippet']['publishedAt'])
-    #     #print(r['items'][0]['statistics']['viewCount'])
-    #     return r
-
-
-     '''  Метод возвращающий название и ссылку на канал по шаблону <название_канала> (<ссылка_на_канал>) '''
     def __str__(self):
-        return f'{self.title} ({self.url})'
+        """Магический метод для отображения информации об объекте класса для пользователя"""
 
-    ''' Метод сложения'''
+        return f'{self.title} {self.url}'
+
     def __add__(self, other):
-        return self.channel + other.channel
+        """Магический метод для складывания каналов по количеству подписчиков"""
 
-    ''' Метод вычитания'''
+        if isinstance(other, self.__class__):
+            return self.subscriberCount + other.subscriberCount
+        else:
+            return self.subscriberCount + other
 
     def __sub__(self, other):
-         return self.channel - other.channel
-         return other.channel - self.channel
+        """Магический метод для вычисления разницы каналов по количеству подписчиков"""
 
-    ''' Метод сравнивания в > сторону'''
-    def __gt__(self, other):
-        if self.channel > other.channel:
-            self.channel = False
+        if isinstance(other, self.__class__):
+            return self.subscriberCount - other.subscriberCount
+        else:
+            return self.subscriberCount - other
 
-    ''' Метод сравнивания  где значения уточняется = или > значение у каналов '''
     def __ge__(self, other):
-        if self.channel >= other.channel:
-            self.channel = False
+        """Магический метод для сравнения каналов (больше или равно) по количеству подписчиков"""
 
-    ''' Метод сравнивания в < сторону'''
+        if self.subscriberCount >= other.subscriberCount:
+            return True
+        else:
+            return False
+
     def __lt__(self, other):
-        if self.channel < other.channel:
-            self.channel = False
+        """Магический метод для сравнения каналов (меньше или равно) по количеству подписчиков"""
 
-    ''' Метод сравнивания  где значения уточняется = или < значение у каналов '''
+        if self.subscriberCount <= other.subscriberCount:
+            return True
+        else:
+            return False
+
+    def __gt__(self, other):
+        """Магический метод для сравнения количества подписчиков (больше)"""
+        if self.subscriberCount > other.subscriberCount:
+            return True
+        else:
+            return False
+
     def __le__(self, other):
-        if self.channel <= other.channel:
-            self.channel = False
-
-    def __eq__(self, other):
-        if self.channel == other.channel:
-            self.channel = False
-
-
-
-
-
-
-
-
-
-
+        """Магический метод для сравнения количества подписчиков (меньше)"""
+        if self.subscriberCount < other.subscriberCount:
+            return True
+        else:
+            return False
